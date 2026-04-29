@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Maternal Risk Predictor</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  /* ── Pastel palette ── */
+  --bg-main:    #f0f4f8;
+  --bg-card:    #ffffff;
+  --bg-card2:   #f7f9fc;
+
+  --teal:       #0a9e8a;
+  --teal-light: #d4f5f0;
+  --teal-mid:   rgba(10,158,138,0.12);
+  --teal-border:rgba(10,158,138,0.25);
+
+  --indigo:     #5b6ef5;
+  --indigo-light:#eaebff;
+  --indigo-mid: rgba(91,110,245,0.12);
+  --indigo-border:rgba(91,110,245,0.25);
+
+  --amber:      #d97706;
+  --amber-light:#fff3d4;
+  --amber-mid:  rgba(217,119,6,0.10);
+  --amber-border:rgba(217,119,6,0.25);
+
+  --rose:       #e05c7a;
+  --rose-light: #ffe6ed;
+
+  --green:      #059669;
+  --red:        #dc2626;
+
+  --text:       #1e2d3d;
+  --text-2:     #3d566e;
+  --muted:      #6b87a0;
+  --label:      #4a7a9b;
+  --border:     #dde6ef;
+  --shadow:     rgba(30,45,61,0.08);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+
+body{
+  background: #eef2f7;
+  background-image:
+    radial-gradient(ellipse at 10% 0%,  rgba(212,245,240,0.6) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 10%, rgba(234,235,255,0.5) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 100%,rgba(255,243,212,0.4) 0%, transparent 50%);
+  min-height:100vh;
+  font-family:'DM Sans',sans-serif;
+  color:var(--text);
+  overflow-x:hidden;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:#e8edf3;}
+::-webkit-scrollbar-thumb{background:#b5c8d8;border-radius:10px;}
+
+/* ── Layout ── */
+.wrap{max-width:1200px;margin:0 auto;padding:0 2rem 4rem;}
+
+/* ── Progress bar ── */
+.progress-bar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:3px;
+  background:linear-gradient(90deg,#0a9e8a,#5b6ef5,#d97706);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .4s ease;
+}
+
+/* ── Hero ── */
+.hero{
+  text-align:center;
+  padding:4.5rem 2rem 3rem;
+  position:relative;
+}
+.hero::before{
+  content:'';
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:700px;height:350px;
+  background:radial-gradient(ellipse,rgba(10,158,138,0.06) 0%,transparent 65%);
+  pointer-events:none;
+}
+.badge{
+  display:inline-block;
+  background:var(--teal-light);
+  border:1px solid var(--teal-border);
+  color:var(--teal);
+  font-size:.67rem;font-weight:600;
+  letter-spacing:.2em;text-transform:uppercase;
+  padding:.35rem 1.2rem;border-radius:100px;
+  margin-bottom:1.6rem;
+  animation:fadeUp .6s ease both;
+}
+.hero-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.4rem,5vw,3.8rem);
+  font-weight:600;
+  color:var(--text);
+  line-height:1.15;
+  letter-spacing:-.02em;
+  margin-bottom:1.1rem;
+  animation:fadeUp .7s .1s ease both;
+}
+.hero-title span{color:var(--teal);}
+.hero-desc{
+  font-size:.97rem;color:var(--text-2);
+  max-width:640px;margin:0 auto 2.2rem;
+  line-height:1.75;
+  animation:fadeUp .7s .2s ease both;
+}
+.hero-line{
+  width:60px;height:2px;
+  background:linear-gradient(90deg,transparent,var(--teal),transparent);
+  margin:0 auto;
+  animation:fadeUp .7s .3s ease both;
+}
+
+/* ── Nav pills ── */
+.nav-pills{
+  display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;
+  margin-bottom:2.8rem;
+  animation:fadeUp .7s .35s ease both;
+}
+.nav-pill{
+  padding:.42rem 1.15rem;
+  border-radius:100px;
+  border:1px solid var(--border);
+  background:white;
+  color:var(--muted);
+  font-size:.77rem;font-weight:500;
+  cursor:pointer;transition:all .2s;
+  text-decoration:none;
+  box-shadow:0 1px 4px var(--shadow);
+}
+.nav-pill:hover,.nav-pill.active{
+  border-color:var(--teal-border);
+  color:var(--teal);
+  background:var(--teal-light);
+}
+
+
+
+/* ── Cards ── */
+.card{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:2rem 2.2rem 2.2rem;
+  margin-bottom:1.8rem;
+  box-shadow:0 2px 20px var(--shadow);
+  position:relative;overflow:hidden;
+  animation:fadeUp .6s ease both;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:20px 20px 0 0;
+}
+.card-hyp::before{background:linear-gradient(90deg,#0a9e8a,#06b6d4);}
+.card-uti::before{background:linear-gradient(90deg,#5b6ef5,#06b6d4);}
+.card-sep::before{background:linear-gradient(90deg,#d97706,#ef4444);}
+.card-final::before{background:linear-gradient(90deg,#0a9e8a,#5b6ef5,#d97706,#ef4444);}
+
+.section-meta{display:flex;align-items:flex-start;gap:1rem;margin-bottom:1.6rem;}
+.section-icon{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.25rem;flex-shrink:0;margin-top:.1rem;
+}
+.icon-hyp{background:var(--teal-light);}
+.icon-uti{background:var(--indigo-light);}
+.icon-sep{background:var(--amber-light);}
+.icon-final{background:var(--teal-light);}
+.section-text-label{font-size:.61rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:600;color:var(--text);margin-bottom:.2rem;}
+.section-sub{font-size:.82rem;color:var(--muted);line-height:1.55;}
+
+/* ── Grid ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;}
+@media(max-width:900px){.grid-4,.grid-5{grid-template-columns:1fr 1fr;}.grid-3{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr;}}
+
+/* ── Field group ── */
+.field-group-title{
+  font-size:.64rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);
+  border-bottom:1px solid var(--border);
+  padding-bottom:.45rem;margin-bottom:1rem;margin-top:.2rem;
+}
+.opt-note{font-size:.73rem;color:var(--muted);font-style:italic;margin-bottom:.9rem;margin-top:-.3rem;}
+.range-hint{font-size:.68rem;font-weight:400;color:#8aafc8;font-style:italic;}
+.ind-low{display:inline-block;background:rgba(5,150,105,.1);border:1px solid rgba(5,150,105,.3);color:#059669;font-size:.73rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.22rem .75rem;border-radius:100px;margin-left:.5rem;}
+.ind-high{display:inline-block;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);color:#dc2626;font-size:.73rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.22rem .75rem;border-radius:100px;margin-left:.5rem;}
+
+/* ── Inputs ── */
+.field{display:flex;flex-direction:column;gap:.4rem;}
+label{font-size:.77rem;font-weight:500;color:var(--label);}
+input[type=number],select{
+  background:#f7f9fc;
+  border:1px solid #d8e3ed;
+  border-radius:10px;
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  font-size:.9rem;
+  padding:.58rem .88rem;
+  outline:none;
+  transition:border-color .2s,box-shadow .2s;
+  width:100%;
+  -moz-appearance:textfield;
+}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+input[type=number]:focus,select:focus{
+  border-color:rgba(10,158,138,.45);
+  box-shadow:0 0 0 3px rgba(10,158,138,.08);
+  background:white;
+}
+select option{background:white;color:var(--text);}
+
+/* ── Divider ── */
+.divider{border:none;border-top:1px solid var(--border);margin:1.3rem 0;}
+
+/* ── Buttons ── */
+.btn{
+  width:100%;
+  padding:.7rem 1.5rem;
+  border-radius:11px;
+  border:1px solid var(--teal-border);
+  background:linear-gradient(135deg,rgba(10,158,138,.12),rgba(6,182,212,.10));
+  color:var(--teal);
+  font-family:'DM Sans',sans-serif;
+  font-weight:600;font-size:.87rem;
+  letter-spacing:.04em;
+  cursor:pointer;
+  transition:all .2s;
+  margin-top:.3rem;
+}
+.btn:hover{
+  background:linear-gradient(135deg,rgba(10,158,138,.2),rgba(6,182,212,.18));
+  border-color:var(--teal);
+  box-shadow:0 4px 16px rgba(10,158,138,.18);
+  transform:translateY(-1px);
+}
+.btn:active{transform:translateY(0);}
+.btn-uti{border-color:var(--indigo-border);background:linear-gradient(135deg,rgba(91,110,245,.12),rgba(6,182,212,.10));color:var(--indigo);}
+.btn-uti:hover{background:linear-gradient(135deg,rgba(91,110,245,.2),rgba(6,182,212,.18));border-color:var(--indigo);box-shadow:0 4px 16px rgba(91,110,245,.18);}
+.btn-sep{border-color:var(--amber-border);background:linear-gradient(135deg,rgba(217,119,6,.12),rgba(239,68,68,.10));color:var(--amber);}
+.btn-sep:hover{background:linear-gradient(135deg,rgba(217,119,6,.2),rgba(239,68,68,.18));border-color:var(--amber);box-shadow:0 4px 16px rgba(217,119,6,.18);}
+.btn-final{border-color:var(--teal-border);background:linear-gradient(135deg,rgba(10,158,138,.15),rgba(91,110,245,.1),rgba(217,119,6,.07));color:var(--text);font-size:.9rem;padding:.78rem;}
+.btn-final:hover{box-shadow:0 4px 20px rgba(10,158,138,.2);border-color:var(--teal);}
+
+/* ── Probability result ── */
+.prob-result{
+  display:flex;align-items:center;gap:1.5rem;
+  background:var(--teal-light);
+  border:1px solid var(--teal-border);
+  border-radius:13px;
+  padding:1rem 1.4rem;
+  margin-top:1.1rem;
+  animation:fadeIn .4s ease;
+}
+.prob-result-uti{background:var(--indigo-light);border-color:var(--indigo-border);}
+.prob-result-sep{background:var(--amber-light);border-color:var(--amber-border);}
+.prob-label-small{font-size:.67rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:.25rem;}
+.prob-label-uti{color:var(--indigo);}
+.prob-label-sep{color:var(--amber);}
+.prob-num{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.1rem;font-weight:700;
+  color:var(--teal);line-height:1;
+}
+.prob-num-uti{color:var(--indigo);}
+.prob-num-sep{color:var(--amber);}
+.bar-wrap{flex:1;height:6px;background:rgba(10,158,138,.12);border-radius:10px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,#0a9e8a,#06b6d4);transition:width .8s cubic-bezier(.4,0,.2,1);}
+.bar-fill-uti{background:linear-gradient(90deg,#5b6ef5,#06b6d4);}
+.bar-fill-sep{background:linear-gradient(90deg,#d97706,#ef4444);}
+
+/* ── Info / warn boxes ── */
+.info-box{
+  background:#eef7ff;
+  border:1px solid #c3ddf7;
+  border-radius:11px;padding:.8rem 1.05rem;
+  color:#4a8abf;font-size:.83rem;margin-top:1rem;
+  line-height:1.5;
+}
+.warn-box{
+  background:var(--amber-light);
+  border:1px solid var(--amber-border);
+  border-radius:11px;padding:.8rem 1.05rem;
+  color:var(--amber);font-size:.83rem;margin-top:1rem;
+  line-height:1.5;
+}
+
+/* ── Breakdown pills ── */
+.breakdown-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.4rem;}
+@media(max-width:700px){.breakdown-grid{grid-template-columns:1fr 1fr;}}
+.bk-pill{
+  background:#f4f7fa;
+  border:1px solid var(--border);
+  border-radius:13px;padding:.9rem 1rem;
+}
+.bk-pill-label{font-size:.62rem;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;}
+.bk-pill-val{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:700;color:var(--teal);}
+.bk-pill-val-uti{color:var(--indigo);}
+.bk-pill-val-sep{color:var(--amber);}
+.bk-pill-val-final{color:var(--text);}
+
+/* ── Final result ── */
+.final-low{
+  background:linear-gradient(135deg,#ecfdf5,#f0fdf4);
+  border:1px solid rgba(5,150,105,.3);
+  border-radius:16px;padding:1.8rem 2rem;
+  animation:fadeIn .5s ease;
+}
+.final-high{
+  background:linear-gradient(135deg,#fff1f2,#fef2f2);
+  border:1px solid rgba(220,38,38,.3);
+  border-radius:16px;padding:1.8rem 2rem;
+  animation:fadeIn .5s ease;
+}
+.final-tag{font-size:.64rem;font-weight:600;letter-spacing:.17em;text-transform:uppercase;margin-bottom:.45rem;}
+.final-tag-low{color:var(--green);}
+.final-tag-high{color:var(--red);}
+.final-title{font-family:'Cormorant Garamond',serif;font-size:1.85rem;font-weight:700;margin-bottom:.6rem;line-height:1.2;}
+.final-title-low{color:#065f46;}
+.final-title-high{color:#991b1b;}
+.final-msg{font-size:.92rem;line-height:1.7;}
+.final-msg-low{color:#065f46;}
+.final-msg-high{color:#7f1d1d;}
+
+/* ── Footer ── */
+footer{
+  text-align:center;color:var(--muted);
+  font-size:.75rem;letter-spacing:.03em;
+  padding:2.5rem 0 1.5rem;
+  line-height:2;
+  border-top:1px solid var(--border);
+  margin-top:1rem;
+}
+
+/* ── Animations ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="wrap">
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <h1 class="hero-title">Maternal Risk<br><span>Predictor</span></h1>
+  <div class="hero-line"></div>
+</div>
+
+<div class="nav-pills">
+<a href="#hyp"   class="nav-pill">🫀 Hypertension</a>
+  <a href="#uti"   class="nav-pill">🧫 UTI Risk</a>
+  <a href="#sep"   class="nav-pill">🩸 Sepsis Risk</a>
+  <a href="#final" class="nav-pill">⚕️ Combined Risk</a>
+</div>
+
+
+
+<!-- ════════════════════════════════════════
+     SECTION 1 — GESTATIONAL HYPERTENSION
+════════════════════════════════════════ -->
+<div class="card card-hyp" id="hyp" style="animation-delay:.15s">
+  <div class="section-meta">
+    <div class="section-icon icon-hyp">🫀</div>
+    <div>
+      <div class="section-text-label">Module 01</div>
+      <div class="section-title">Gestational Hypertension Prediction</div>
+      <div class="section-sub">Enter maternal vital signs and demographics to compute gestational hypertension probability.</div>
+    </div>
+  </div>
+
+  <div class="field-group-title">Patient Vitals & Demographics</div>
+  <div class="grid-3">
+    <div class="field"><label>Age (years)</label><input type="number" id="hyp_age" value="28" min="15" max="55"/></div>
+    <div class="field"><label>Systolic BP <span class="range-hint">(High Risk: ≥ 140 mmHg)</span></label><input type="number" id="hyp_sbp" value="120" min="70" max="200"/></div>
+    <div class="field"><label>Diastolic BP <span class="range-hint">(High Risk: ≥ 90 mmHg)</span></label><input type="number" id="hyp_dbp" value="80" min="40" max="130"/></div>
+    <div class="field"><label>Blood Glucose <span class="range-hint">(High Risk: ≥ 140 mg/dL)</span></label><input type="number" id="hyp_glucose" value="90" min="50" max="300"/></div>
+    <div class="field"><label>Body Temperature <span class="range-hint">(High Risk: ≥ 37.5 °C)</span></label><input type="number" id="hyp_temp" value="37.0" min="35" max="42" step="0.1"/></div>
+    <div class="field"><label>Heart Rate <span class="range-hint">(High Risk: ≥ 100 bpm)</span></label><input type="number" id="hyp_hr" value="78" min="40" max="180"/></div>
+  </div>
+
+  <hr class="divider"/>
+  <button class="btn" onclick="calcHyp()">Calculate Hypertension Probability</button>
+  <div id="hyp_result"></div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 2 — UTI RISK
+════════════════════════════════════════ -->
+<div class="card card-uti" id="uti" style="animation-delay:.2s">
+  <div class="section-meta">
+    <div class="section-icon icon-uti">🧫</div>
+    <div>
+      <div class="section-text-label">Module 02</div>
+      <div class="section-title">UTI Risk Prediction</div>
+      <div class="section-sub">Assess urinary tract infection risk based on patient profile and haemodynamic indicators.</div>
+    </div>
+  </div>
+
+  <div class="field-group-title">Patient Parameters</div>
+  <div class="grid-3">
+    <div class="field"><label>Age (years)</label><input type="number" id="uti_age" value="28" min="15" max="55"/></div>
+    <div class="field">
+      <label>BMI Category <span class="range-hint">(Obese = highest risk)</span></label>
+      <select id="uti_bmi">
+        <option value="0">Normal (0)</option>
+        <option value="1">Overweight (1)</option>
+        <option value="2">Obese (2)</option>
+      </select>
+    </div>
+    <div class="field"><label>Temperature <span class="range-hint">(High Risk: ≥ 38.0 °C)</span></label><input type="number" id="uti_temp" value="37.0" min="35" max="42" step="0.1"/></div>
+    <div class="field"><label>Systolic BP <span class="range-hint">(Normal: 90–120 mmHg)</span></label><input type="number" id="uti_sbp" value="118" min="70" max="200"/></div>
+    <div class="field"><label>Diastolic BP <span class="range-hint">(Normal: 60–80 mmHg)</span></label><input type="number" id="uti_dbp" value="76" min="40" max="130"/></div>
+  </div>
+
+  <hr class="divider"/>
+  <button class="btn btn-uti" onclick="calcUti()">Calculate UTI Probability</button>
+  <div id="uti_result"></div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 3 — SEPSIS RISK
+════════════════════════════════════════ -->
+<div class="card card-sep" id="sep" style="animation-delay:.25s">
+  <div class="section-meta">
+    <div class="section-icon icon-sep">🩸</div>
+    <div>
+      <div class="section-text-label">Module 03</div>
+      <div class="section-title">Sepsis Risk Prediction</div>
+      <div class="section-sub">Clinical and laboratory parameters for systemic infection risk stratification. Laboratory values are optional.</div>
+    </div>
+  </div>
+
+  <div class="field-group-title">Haemodynamic & Respiratory Vitals (Required)</div>
+  <div class="grid-4">
+    <div class="field"><label>HR <span class="range-hint">(High Risk: &gt; 90 bpm)</span></label><input type="number" id="sep_hr" value="88" min="30" max="250"/></div>
+    <div class="field"><label>SBP <span class="range-hint">(High Risk: &lt; 100 mmHg)</span></label><input type="number" id="sep_sbp" value="118" min="50" max="220"/></div>
+    <div class="field"><label>DBP <span class="range-hint">(Normal: 60–80 mmHg)</span></label><input type="number" id="sep_dbp" value="76" min="20" max="150"/></div>
+    <div class="field"><label>MAP <span class="range-hint">(High Risk: &lt; 70 mmHg)</span></label><input type="number" id="sep_map" value="90" min="30" max="160"/></div>
+    <div class="field"><label>Temp <span class="range-hint">(High Risk: &lt;36.0 or &gt;38.3 °C)</span></label><input type="number" id="sep_temp" value="37.2" min="33" max="43" step="0.1"/></div>
+    <div class="field"><label>O₂ Sat <span class="range-hint">(High Risk: &lt; 95%)</span></label><input type="number" id="sep_o2" value="98" min="70" max="100"/></div>
+    <div class="field"><label>Resp Rate <span class="range-hint">(High Risk: &gt; 20 /min)</span></label><input type="number" id="sep_resp" value="16" min="5" max="60"/></div>
+    <div class="field"><label>Age (years)</label><input type="number" id="sep_age" value="30" min="15" max="90"/></div>
+  </div>
+  <div class="field" style="max-width:220px;margin-top:.2rem;">
+    <label>ICU LOS <span class="range-hint">(0–720 hours)</span></label><input type="number" id="sep_iculos" value="0" min="0" max="720"/>
+  </div>
+
+  <hr class="divider"/>
+  <div class="field-group-title">Laboratory Values <span style="font-weight:400;color:var(--muted)">(Optional — leave 0 if unavailable)</span></div>
+  <div class="opt-note">Missing values are imputed to population-normal defaults automatically.</div>
+  <div class="grid-5">
+    <div class="field"><label>Lactate <span class="range-hint">(High Risk: &gt; 2.0 mmol/L)</span></label><input type="number" id="sep_lac" value="0" min="0" max="20" step="0.1"/></div>
+    <div class="field"><label>WBC <span class="range-hint">(High Risk: &lt;4 or &gt;12 ×10³/μL)</span></label><input type="number" id="sep_wbc" value="0" min="0" max="60" step="0.1"/></div>
+    <div class="field"><label>Creatinine <span class="range-hint">(High Risk: &gt; 1.5 mg/dL)</span></label><input type="number" id="sep_cre" value="0" min="0" max="20" step="0.1"/></div>
+    <div class="field"><label>Glucose <span class="range-hint">(High Risk: &gt; 140 mg/dL)</span></label><input type="number" id="sep_glu" value="0" min="0" max="600"/></div>
+    <div class="field"><label>Platelets <span class="range-hint">(High Risk: &lt; 100 ×10³/μL)</span></label><input type="number" id="sep_plt" value="0" min="0" max="1000"/></div>
+  </div>
+
+  <hr class="divider"/>
+  <button class="btn btn-sep" onclick="calcSep()">Calculate Sepsis Probability</button>
+  <div id="sep_result"></div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 4 — FINAL COMBINED RISK
+════════════════════════════════════════ -->
+<div class="card card-final" id="final" style="animation-delay:.3s">
+  <div class="section-meta">
+    <div class="section-icon icon-final">⚕️</div>
+    <div>
+      <div class="section-text-label">Module 04 · Late Fusion Ensemble</div>
+      <div class="section-title">Final Combined Risk Assessment</div>
+      <div class="section-sub">P_final = (P_hyp + P_uti + P_sep) / 3 &nbsp;·&nbsp; Decision threshold τ = 0.40</div>
+    </div>
+  </div>
+
+  <hr class="divider" style="margin-top:0"/>
+  <button class="btn btn-final" onclick="calcFinal()">⚕ Calculate Final Combined Risk</button>
+  <div id="final_result"></div>
+</div>
+
+</div><!-- /wrap -->
+
+<footer>
+  Multimodal Machine Learning System for Prediction of Gestational Hypertension and Maternal Infection Risks<br>
+  ICAANS 2026 · Paper ID 158 · SRM Institute of Science and Technology · Late Fusion Ensemble · Threshold τ = 0.40
+</footer>
+
+<script>
+// ─── State ──────────────────────────────
+const state = { hyp: null, uti: null, sep: null };
+
+// ─── Progress bar ────────────────────────
+function updateProgress() {
+  const done = [state.hyp, state.uti, state.sep].filter(v => v !== null).length;
+  document.getElementById('progressBar').style.transform = `scaleX(${done / 3})`;
+}
+
+// ─── Utility ─────────────────────────────
+function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function pct(p) { return (p * 100).toFixed(1) + '%'; }
+function clamp(x, lo=0, hi=0.98) { return Math.min(hi, Math.max(lo, x)); }
+
+
+// ─── Improved Models (calibrated weights) ─────────────────────────────────
+// Hypertension: SBP and DBP are primary, glucose secondary
+function fallbackHyp(age, sbp, dbp, glucose, temp, hr) {
+  let s = 0;
+  // SBP — primary driver
+  if (sbp >= 160)      s += 0.45;
+  else if (sbp >= 140) s += 0.38;
+  else if (sbp >= 130) s += 0.20;
+  else if (sbp >= 125) s += 0.08;
+  // DBP — secondary driver
+  if (dbp >= 110)      s += 0.30;
+  else if (dbp >= 90)  s += 0.25;
+  else if (dbp >= 85)  s += 0.12;
+  // Glucose
+  if (glucose >= 200)      s += 0.22;
+  else if (glucose >= 140) s += 0.18;
+  else if (glucose >= 110) s += 0.10;
+  // Age
+  if (age >= 40)      s += 0.14;
+  else if (age >= 35) s += 0.12;
+  else if (age >= 30) s += 0.06;
+  // Temperature
+  if (temp >= 38.0)       s += 0.10;
+  else if (temp >= 37.5)  s += 0.08;
+  // HR
+  if (hr >= 120)      s += 0.10;
+  else if (hr >= 100) s += 0.07;
+  return clamp(s);
+}
+
+// UTI: Temperature and BMI are the primary drivers
+function fallbackUti(age, bmi, sbp, dbp, temp) {
+  let s = 0;
+  // Temperature — primary
+  if (temp >= 39.0)       s += 0.45;
+  else if (temp >= 38.0)  s += 0.35;
+  else if (temp >= 37.5)  s += 0.18;
+  // BMI
+  if (bmi === 2)      s += 0.22;
+  else if (bmi === 1) s += 0.11;
+  // Age
+  if (age >= 40)      s += 0.12;
+  else if (age >= 35) s += 0.10;
+  // BP factors
+  if (sbp >= 140) s += 0.08;
+  if (dbp >= 90)  s += 0.08;
+  return clamp(s);
+}
+
+// Sepsis: Temperature abnormality, hypotension, and tachycardia are key
+function fallbackSep(hr, sbp, dbp, map, temp, o2, resp, lac, wbc, cre, glu, plt, age, iculos) {
+  let s = 0;
+  // Temperature (abnormal either direction)
+  if (temp >= 39.5 || temp <= 35.5) s += 0.28;
+  else if (temp >= 38.3 || temp <= 36.0) s += 0.22;
+  // Hypotension — critical
+  if (sbp < 90)       s += 0.28;
+  else if (sbp < 100) s += 0.20;
+  // MAP
+  if (map < 60)       s += 0.22;
+  else if (map < 70)  s += 0.17;
+  // Lactate — very important if provided
+  if (lac && lac > 4.0)       s += 0.25;
+  else if (lac && lac > 2.0)  s += 0.18;
+  else if (lac && lac > 1.5)  s += 0.09;
+  // Heart Rate
+  if (hr > 120)       s += 0.18;
+  else if (hr > 90)   s += 0.13;
+  // Resp rate
+  if (resp > 30)      s += 0.18;
+  else if (resp > 20) s += 0.13;
+  // O2 sat
+  if (o2 < 90)        s += 0.18;
+  else if (o2 < 95)   s += 0.12;
+  // WBC
+  if (wbc && (wbc > 15 || wbc < 4))  s += 0.13;
+  else if (wbc && wbc > 12)           s += 0.11;
+  // Platelets
+  if (plt && plt < 50)    s += 0.16;
+  else if (plt && plt < 100) s += 0.11;
+  // Creatinine
+  if (cre && cre > 2.0)   s += 0.12;
+  else if (cre && cre > 1.5) s += 0.09;
+  // Glucose
+  if (glu && glu > 200)   s += 0.10;
+  else if (glu && glu > 140) s += 0.07;
+  // Age
+  if (age > 75)  s += 0.09;
+  else if (age > 65) s += 0.07;
+  // ICU stay
+  if (iculos > 12) s += 0.07;
+  else if (iculos > 3) s += 0.05;
+  return clamp(s);
+}
+
+// ─── Probability bar HTML ─────────────────
+function probHTML(p, label, cls='', barCls='') {
+  const w = Math.round(p * 100);
+  const isHigh = p >= 0.4;
+  const badge = isHigh
+    ? `<span class="ind-high">● HIGH</span>`
+    : `<span class="ind-low">● LOW</span>`;
+  return `
+  <div class="prob-result ${cls}">
+    <div>
+      <div class="prob-label-small ${barCls ? 'prob-label-'+barCls : ''}">${label} ${badge}</div>
+      <div class="prob-num ${barCls ? 'prob-num-'+barCls : ''}">${(p*100).toFixed(1)}% <span style="font-size:1rem;opacity:.55">(${p.toFixed(3)})</span></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-fill ${barCls ? 'bar-fill-'+barCls : ''}" style="width:${w}%"></div>
+    </div>
+  </div>`;
+}
+
+// ─── Calc functions ───────────────────────
+function calcHyp() {
+  const age=v('hyp_age'), sbp=v('hyp_sbp'), dbp=v('hyp_dbp'),
+        glu=v('hyp_glucose'), tmp=v('hyp_temp'), hr=v('hyp_hr');
+  const p = fallbackHyp(age, sbp, dbp, glu, tmp, hr);
+  state.hyp = p;
+  document.getElementById('hyp_result').innerHTML = probHTML(p, 'Hypertension Probability');
+  updateProgress();
+}
+
+function calcUti() {
+  const age=v('uti_age'), bmi=parseInt(document.getElementById('uti_bmi').value),
+        sbp=v('uti_sbp'), dbp=v('uti_dbp'), tmp=v('uti_temp');
+  const p = fallbackUti(age, bmi, sbp, dbp, tmp);
+  state.uti = p;
+  document.getElementById('uti_result').innerHTML = probHTML(p, 'UTI Risk Probability', 'prob-result-uti', 'uti');
+  updateProgress();
+}
+
+function calcSep() {
+  const hr=v('sep_hr'), sbp=v('sep_sbp'), dbp=v('sep_dbp'), map=v('sep_map'),
+        tmp=v('sep_temp'), o2=v('sep_o2'), resp=v('sep_resp'), age=v('sep_age'), icu=v('sep_iculos');
+  const lacR=v('sep_lac'), wbcR=v('sep_wbc'), creR=v('sep_cre'), gluR=v('sep_glu'), pltR=v('sep_plt');
+  const lac = lacR > 0 ? lacR : null;
+  const wbc = wbcR > 0 ? wbcR : null;
+  const cre = creR > 0 ? creR : null;
+  const glu = gluR > 0 ? gluR : null;
+  const plt = pltR > 0 ? pltR : null;
+  const p = fallbackSep(hr, sbp, dbp, map, tmp, o2, resp, lac, wbc, cre, glu, plt, age, icu);
+  state.sep = p;
+  document.getElementById('sep_result').innerHTML = probHTML(p, 'Sepsis Risk Probability', 'prob-result-sep', 'sep');
+  updateProgress();
+}
+
+function calcFinal() {
+  const missing = [];
+  if (state.hyp === null) missing.push('Hypertension');
+  if (state.uti === null) missing.push('UTI');
+  if (state.sep === null) missing.push('Sepsis');
+
+  if (missing.length > 0) {
+    document.getElementById('final_result').innerHTML =
+      `<div class="warn-box">⚠ &nbsp; The following module probabilities have not been calculated yet: <strong>${missing.join(', ')}</strong>. Please compute all three modules before proceeding.</div>`;
+    return;
+  }
+
+  const pFinal = (state.hyp + state.uti + state.sep) / 3;
+
+  const breakdown = `
+  <div class="breakdown-grid" style="margin-top:1.3rem">
+    <div class="bk-pill">
+      <div class="bk-pill-label">Hypertension</div>
+      <div class="bk-pill-val">${pct(state.hyp)}</div>
+    </div>
+    <div class="bk-pill">
+      <div class="bk-pill-label">UTI Risk</div>
+      <div class="bk-pill-val bk-pill-val-uti">${pct(state.uti)}</div>
+    </div>
+    <div class="bk-pill">
+      <div class="bk-pill-label">Sepsis Risk</div>
+      <div class="bk-pill-val bk-pill-val-sep">${pct(state.sep)}</div>
+    </div>
+    <div class="bk-pill" style="border-color:rgba(10,158,138,.2);background:#f0fdf9">
+      <div class="bk-pill-label">Combined (Fused)</div>
+      <div class="bk-pill-val bk-pill-val-final">${pct(pFinal)}</div>
+    </div>
+  </div>`;
+
+  let verdict = '';
+  if (pFinal >= 0.4) {
+    verdict = `
+    <div class="final-high">
+      <div class="final-tag final-tag-high">🔴 &nbsp; Assessment Result — P = ${pFinal.toFixed(4)}</div>
+      <div class="final-title final-title-high">HIGH RISK</div>
+      <div class="final-msg final-msg-high">The overall maternal risk score is elevated. Immediate medical evaluation and clinical review are strongly advised.</div>
+    </div>`;
+  } else {
+    verdict = `
+    <div class="final-low">
+      <div class="final-tag final-tag-low">🟢 &nbsp; Assessment Result — P = ${pFinal.toFixed(4)}</div>
+      <div class="final-title final-title-low">LOW RISK</div>
+      <div class="final-msg final-msg-low">The overall maternal risk score is low. Routine monitoring and preventive care are recommended to maintain this status.</div>
+    </div>`;
+  }
+
+  document.getElementById('final_result').innerHTML = breakdown + verdict;
+  document.getElementById('final').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ─── Initial info boxes ───────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const info = '<div class="info-box">ℹ &nbsp; Enter values above and click the button to compute the probability.</div>';
+  document.getElementById('hyp_result').innerHTML = info;
+  document.getElementById('uti_result').innerHTML = info;
+  document.getElementById('sep_result').innerHTML = info;
+  document.getElementById('final_result').innerHTML =
+    '<div class="info-box" style="margin-top:1rem">ℹ &nbsp; Complete all three modules above, then click the button to generate the final combined risk assessment.</div>';
+});
+</script>
+</body>
+</html>
